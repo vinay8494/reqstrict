@@ -34,20 +34,20 @@ func handleConnection(connection net.Conn) {
 
 	request, hostname := readRequest(connection)
 
-	// TODO : filter request
+	if filter(scriptFile, request) == "true" {
+		remote, err := net.Dial("tcp", hostname+":80")
+		if err != nil {
+			return
+		}
+		defer remote.Close()
 
-	remote, err := net.Dial("tcp", hostname+":80")
-	if err != nil {
-		log.Println("error", err, "occurred while connecting to host :", hostname)
-		return
+		_, err = remote.Write([]byte(request))
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		copyData(remote, connection)
+	} else {
+		connection.Write([]byte("Proxy prevented this page from loading"))
 	}
-	defer remote.Close()
-
-	_, err = remote.Write([]byte(request))
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	copyData(remote, connection)
 }

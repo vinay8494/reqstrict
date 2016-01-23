@@ -37,6 +37,16 @@ func init() {
 	flag.IntVar(&maxConnections, "m", defaultMaxConn, maxConnUsage)
 }
 
+var scriptFile string
+
+func init() {
+	const (
+		defaultScriptFile = "rule.lua"
+		scriptFileUsage   = "The path of the lua script file"
+	)
+	flag.StringVar(&scriptFile, "f", defaultScriptFile, scriptFileUsage)
+}
+
 func main() {
 	flag.Parse()
 
