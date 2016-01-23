@@ -25,6 +25,15 @@ func init() {
   flag.StringVar(&bindAddress, "b", defaultBindAddress, addressUsage)
 }
 
+var maxConnections int
+func init() {
+  const (
+    defaultMaxConn = 20
+    maxConnUsage = "Maximum connections to proxy"
+  )
+  flag.IntVar(&maxConnections, "m", defaultMaxConn, maxConnUsage)
+}
+
 func main() {
   flag.Parse()
 
@@ -35,10 +44,21 @@ func main() {
   }
   log.Println("Proxying on", host)
 
+  waiting := make (chan net.Conn)
+  spaces := make (chan bool, maxConnections)
+
+  for i := 0; i < maxConnections; i++ {
+    spaces <- true
+  }
+
+  go matchConnections( waiting , spaces)
+
   for {
-    _,err := server.Accept()
+    connection,err := server.Accept()
     if err != nil {
       log.Println(err)
+    } else {
+      waiting <- connection
     }
   }
 
