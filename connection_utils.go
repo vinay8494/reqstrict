@@ -48,6 +48,6 @@ func handleConnection(connection net.Conn) {
 		}
 		copyData(remote, connection)
 	} else {
-		connection.Write([]byte("Proxy prevented this page from loading"))
+		connection.Write([]byte(displayBlockedMessage))
 	}
 }
